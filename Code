@@ -1,0 +1,103 @@
+//Designed by MD MIZANUR RAHMAN
+
+
+#include <ESP8266WiFi.h>
+#include <SPI.h>
+#include <MFRC522.h>
+#include <ESP8266HTTPClient.h>
+
+#define RST_PIN D3
+#define SS_PIN  D4
+#define BUZZER_PIN D2   // GPIO4 for buzzer
+
+MFRC522 mfrc522(SS_PIN, RST_PIN);
+
+const char* ssid = "xyz"; // Repalce with your SSID
+const char* password = "xyz"; // Repalce with your PASSWORD
+
+// Your Google Apps Script URL
+const String serverURL = "https://script.google.comxyz/exec";
+
+void setup() {
+  Serial.begin(115200);
+  SPI.begin();
+  mfrc522.PCD_Init();
+
+  pinMode(BUZZER_PIN, OUTPUT);
+  digitalWrite(BUZZER_PIN, LOW);
+
+  WiFi.begin(ssid, password);
+  Serial.print("Connecting to WiFi");
+
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+  }
+
+  Serial.println("\nConnected to WiFi!");
+}
+
+void loop() {
+  if (!mfrc522.PICC_IsNewCardPresent() || !mfrc522.PICC_ReadCardSerial()) {
+    return;
+  }
+
+  String uid = "";
+  for (byte i = 0; i < mfrc522.uid.size; i++) {
+    uid += String(mfrc522.uid.uidByte[i], HEX);
+  }
+  uid.toLowerCase();  // Ensure UID is lowercase for matching
+  Serial.println("UID: " + uid);
+
+  // Match UID to known users
+  String name, rollno, department, email;
+
+  if (uid == "XYZ") {
+    name = "MD MIZANUR RAHMAN";
+    rollno = "XYZ";
+    department = "ECE";
+    email = "xyz@gmail.com";
+  } else if (uid == "xyz") {
+    name = "xyz";
+    rollno = "xyz";
+    department = "xyz";
+    email = "xyz@gmail.com";
+  } else if (uid == "gjdh") {  // Example only
+    name = "XYZ";
+    rollno = "XYZ";
+    department = "xyz";
+    email = "XYZ@gmail.com";
+  } else {
+    Serial.println("Unknown card. Skipping...");
+    return;
+  }
+
+  // Send data to Google Sheets
+  if (WiFi.status() == WL_CONNECTED) {
+    WiFiClientSecure client;
+    client.setInsecure();  // Accept unverified HTTPS certs
+    HTTPClient http;
+
+    http.begin(client, serverURL);
+    http.addHeader("Content-Type", "application/json");
+
+    String jsonData = "{\"name\":\"" + name + "\",\"rollno\":\"" + rollno + "\",\"department\":\"" + department + "\",\"email\":\"" + email + "\"}";
+
+    int httpResponseCode = http.POST(jsonData);
+    if (httpResponseCode > 0) {
+      String response = http.getString();
+      Serial.println("Response: " + response);
+
+      // ✅ Attendance success → buzz
+      tone(BUZZER_PIN, 1000);  // 1kHz tone
+      delay(1000);              // 300 ms beep
+      noTone(BUZZER_PIN);
+    } else {
+      Serial.println("Error sending data. HTTP code: " + String(httpResponseCode));
+    }
+
+    http.end();
+  }
+
+  delay(10);  // Delay to avoid duplicate reads
+}
