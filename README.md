@@ -36,4 +36,4 @@ Tech Fests and Seminars
 Company Check-ins
 Libraries or Lab Access Control
 
-𝐃𝐞𝐬𝐢𝐠𝐧𝐞𝐝 𝐚𝐧𝐝 𝐝𝐞𝐛𝐮𝐠𝐠𝐢𝐧𝐠 𝐁𝐲 𝐌𝐃 𝐌𝐈𝐙𝐀𝐍𝐔𝐑 𝐑𝐀𝐇𝐌𝐀𝐍
+𝐃𝐞𝐬𝐢𝐠𝐧𝐞𝐝 𝐚𝐧𝐝 𝐃𝐞𝐛𝐮𝐠𝐠𝐞𝐝 𝐛𝐲 𝐌𝐃 𝐌𝐈𝐙𝐀𝐍𝐔𝐑 𝐑𝐀𝐇𝐌𝐀𝐍.
